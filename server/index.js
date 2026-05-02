@@ -108,7 +108,8 @@ app.post('/api/translate', translateLimiter, async (req, res) => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Catch-all route to serve the frontend for any non-API requests (SPA routing)
-app.get('*', (req, res) => {
+// Express 5 requires named wildcard params — bare '*' is no longer valid
+app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
