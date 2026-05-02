@@ -20,6 +20,19 @@ vi.mock('../components/T', () => ({
   default: ({ children }: { children: string }) => <>{children}</>,
 }));
 
+// Mock Firebase dependencies
+vi.mock('../context/AuthContext', () => ({
+  useAuth: () => ({ user: null }),
+}));
+vi.mock('../firebase', () => ({
+  db: {},
+}));
+vi.mock('firebase/firestore', () => ({
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+}));
+
 import VoterChecklist from '../components/Checklist';
 
 describe('VoterChecklist Component', () => {

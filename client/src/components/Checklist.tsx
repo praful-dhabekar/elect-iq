@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, Circle, ClipboardList } from 'lucide-react';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from '../firebase';
+import { useAuth } from '../context/AuthContext';
 import T from './T';
 
 const CHECKLIST_ITEMS = [
@@ -17,6 +20,7 @@ const CHECKLIST_ITEMS = [
  * Why: Helps users track their election readiness. Uses localStorage for persistence. Wrapped in React.memo and uses useCallback for optimized rendering.
  */
 const VoterChecklist: React.FC = React.memo(() => {
+  const { user } = useAuth() || {};
   const [checkedItems, setCheckedItems] = useState<boolean[]>(() => {
     try {
       const saved = localStorage.getItem('electiq-checklist');
@@ -31,6 +35,26 @@ const VoterChecklist: React.FC = React.memo(() => {
   });
 
   useEffect(() => {
+    if (user) {
+      const fetchChecklist = async () => {
+        try {
+          const docRef = doc(db, 'checklists', user.uid);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            if (Array.isArray(data.items)) {
+              setCheckedItems(data.items);
+            }
+          }
+        } catch (e) {
+          // Silently fall back to local storage
+        }
+      };
+      fetchChecklist();
+    }
+  }, [user]);
+
+  useEffect(() => {
     try {
       localStorage.setItem('electiq-checklist', JSON.stringify(checkedItems));
     } catch (e) {
@@ -38,13 +62,19 @@ const VoterChecklist: React.FC = React.memo(() => {
     }
   }, [checkedItems]);
 
-  const toggleItem = useCallback((index: number) => {
-    setCheckedItems(prev => {
-      const next = [...prev];
-      next[index] = !next[index];
-      return next;
-    });
-  }, []);
+  const toggleItem = useCallback(async (index: number) => {
+    const next = [...checkedItems];
+    next[index] = !next[index];
+    setCheckedItems(next);
+
+    if (user) {
+      try {
+        await setDoc(doc(db, 'checklists', user.uid), { items: next, updatedAt: new Date() }, { merge: true });
+      } catch (e) {
+        // Silently fall back
+      }
+    }
+  }, [checkedItems, user]);
 
   const progress = useMemo(() => {
     return (checkedItems.filter(Boolean).length / CHECKLIST_ITEMS.length) * 100;
@@ -58,6 +88,11 @@ const VoterChecklist: React.FC = React.memo(() => {
         </div>
         <h2 className="text-2xl font-bold text-gray-800"><T>Your Voter Readiness</T></h2>
         <p className="text-gray-500 mt-2"><T>Complete these steps to ensure you're ready for election day.</T></p>
+        
+        <div className="mt-4 flex items-center justify-center gap-2 text-sm text-gray-500" aria-label={user ? "Synced across devices" : "Saved locally"}>
+          <span className={`w-2 h-2 rounded-full ${user ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+          <span><T>{user ? "Synced across devices" : "Saved locally"}</T></span>
+        </div>
       </div>
 
       {/* Progress Bar */}
