@@ -55,6 +55,7 @@ function createApp(deps = {}) {
 
   // --- Security Middlewares ---
   app.use(helmet({
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
