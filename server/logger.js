@@ -2,8 +2,12 @@ const winston = require('winston');
 
 /**
  * Creates a configured winston logger instance.
- * Why: We need a dedicated logger to ensure structured logging in production and avoid using console.log which is inefficient and insecure.
+ * Why: Always log to stdout/stderr in production (Cloud Run captures these).
+ * File transports are omitted in production because Cloud Run's filesystem
+ * is ephemeral and write attempts cause startup crashes.
  */
+const isProduction = process.env.NODE_ENV === 'production';
+
 const logger = winston.createLogger({
   level: 'info',
   format: winston.format.combine(
@@ -11,18 +15,20 @@ const logger = winston.createLogger({
     winston.format.json()
   ),
   transports: [
-    // In production, we log to files or a service. Here we use files for simplicity.
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' }),
+    // Always log to stdout — Cloud Run and Cloud Logging capture this automatically
+    new winston.transports.Console({
+      format: isProduction
+        ? winston.format.json()          // Structured JSON for Cloud Logging
+        : winston.format.simple(),       // Human-readable for local dev
+    }),
+    // Only write to files in local development — never in production
+    ...(!isProduction
+      ? [
+          new winston.transports.File({ filename: 'error.log', level: 'error' }),
+          new winston.transports.File({ filename: 'combined.log' }),
+        ]
+      : []),
   ],
 });
-
-// If we're not in production then log to the `console` with the format:
-// `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.simple(),
-  }));
-}
 
 module.exports = logger;
