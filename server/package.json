@@ -1,15 +1,20 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
+  "description": "ElectIQ Backend — Express API server proxying Gemini AI and Cloud Translation.",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --verbose --coverage"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "election",
+    "ai",
+    "gemini",
+    "cloud-run"
+  ],
+  "author": "ElectIQ Team",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
@@ -20,5 +25,9 @@
     "express-rate-limit": "^8.4.1",
     "helmet": "^8.1.0",
     "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.2.2"
   }
 }
