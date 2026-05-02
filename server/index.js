@@ -54,7 +54,25 @@ function createApp(deps = {}) {
   const app = express();
 
   // --- Security Middlewares ---
-  app.use(helmet());
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://apis.google.com", "https://www.gstatic.com"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https://*.googleusercontent.com", "https://www.gstatic.com"],
+        connectSrc: [
+          "'self'", 
+          "https://identitytoolkit.googleapis.com", 
+          "https://securetoken.googleapis.com", 
+          "https://firestore.googleapis.com",
+          "https://translation.googleapis.com"
+        ],
+        frameSrc: ["'self'", "https://*.firebaseapp.com"],
+      },
+    },
+  }));
   app.use(cors({ origin: process.env.CLIENT_ORIGIN || 'http://localhost:5173' }));
   app.use(express.json({ limit: '10kb' }));
 
