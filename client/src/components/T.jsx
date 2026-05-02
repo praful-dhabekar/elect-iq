@@ -1,4 +1,5 @@
 import { useT } from '../context/TranslationContext';
+import PropTypes from 'prop-types';
 
 /**
  * T — transparent translation wrapper component.
@@ -16,3 +17,7 @@ export default function T({ children }) {
   // t() returns the original string immediately if language is 'en' or not yet cached
   return t(children);
 }
+
+T.propTypes = {
+  children: PropTypes.string.isRequired,
+};

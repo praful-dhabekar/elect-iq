@@ -9,6 +9,7 @@
  *  - "tab_switched"          → { tab_name } user changes active tab
  *  - "jargon_term_clicked"   → { term }     user opens a jargon card
  *  - "language_changed"      → { language } user selects a different language
+ * @returns {{ trackEvent: (eventName: string, params?: Record<string, string>) => void }}
  */
 export function useAnalytics() {
   /**

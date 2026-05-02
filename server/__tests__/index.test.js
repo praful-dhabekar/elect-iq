@@ -8,7 +8,7 @@
  *
  * Run: npm test
  */
-const { validateChatInput, validateTranslateInput, ALLOWED_TARGET_LANGUAGES, createApp } = require('../index');
+const { validateChatInput, validateTranslateInput, ALLOWED_LANGUAGES, createApp } = require('../index');
 
 // ──────────────────────────────────────────────
 // Unit Tests — Pure Validation Functions
@@ -94,7 +94,7 @@ describe('validateTranslateInput', () => {
     expect(validateTranslateInput({ texts, targetLanguage: 'ta' }).valid).toBe(true);
   });
 
-  it.each(ALLOWED_TARGET_LANGUAGES)('accepts allowed language: %s', (lang) => {
+  it.each(ALLOWED_LANGUAGES)('accepts allowed language: %s', (lang) => {
     const result = validateTranslateInput({ texts: ['test'], targetLanguage: lang });
     expect(result.valid).toBe(true);
   });
@@ -205,6 +205,6 @@ describe('POST /api/translate', () => {
       .post('/api/translate')
       .send({ texts: ['hello'], targetLanguage: 'hi' });
     expect(res.status).toBe(500);
-    expect(res.body.error).toBe('Translation failed');
+    expect(res.body.error).toBe('Internal server error');
   });
 });

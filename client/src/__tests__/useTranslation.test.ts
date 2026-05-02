@@ -1,9 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Tests for the useTranslation hook.
  * Strategy: Test the buildCacheKey pure function directly, and test
  * batching/caching behaviour by rendering the hook with a mock fetch.
  */
-import { renderHook, act } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { buildCacheKey } from '../hooks/useTranslation';
 

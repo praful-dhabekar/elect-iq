@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Tests for the App component.
  * Covers: rendering, tab switching, language selector, ARIA navigation.

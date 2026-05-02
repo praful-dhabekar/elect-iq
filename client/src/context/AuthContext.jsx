@@ -7,6 +7,7 @@
  * without prop-drilling. Uses onAuthStateChanged for reactive updates.
  */
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth, googleProvider } from '../firebase';
 
@@ -56,6 +57,10 @@ export function AuthProvider({ children }) {
     </AuthContext.Provider>
   );
 }
+
+AuthProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
 /** Hook to consume auth state from any component. */
 export function useAuth() {

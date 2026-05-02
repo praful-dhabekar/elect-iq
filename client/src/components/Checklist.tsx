@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle, Circle, ClipboardList } from 'lucide-react';
+import { STORAGE_KEYS } from '../constants';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../context/AuthContext';
@@ -23,7 +24,7 @@ const VoterChecklist: React.FC = React.memo(() => {
   const { user } = useAuth() || {};
   const [checkedItems, setCheckedItems] = useState<boolean[]>(() => {
     try {
-      const saved = localStorage.getItem('electiq-checklist');
+      const saved = localStorage.getItem(STORAGE_KEYS.CHECKLIST);
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed)) return parsed;
@@ -46,7 +47,7 @@ const VoterChecklist: React.FC = React.memo(() => {
               setCheckedItems(data.items);
             }
           }
-        } catch (e) {
+        } catch {
           // Silently fall back to local storage
         }
       };
@@ -56,8 +57,8 @@ const VoterChecklist: React.FC = React.memo(() => {
 
   useEffect(() => {
     try {
-      localStorage.setItem('electiq-checklist', JSON.stringify(checkedItems));
-    } catch (e) {
+      localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(checkedItems));
+    } catch {
       // Ignore write errors to localStorage
     }
   }, [checkedItems]);
@@ -70,7 +71,7 @@ const VoterChecklist: React.FC = React.memo(() => {
     if (user) {
       try {
         await setDoc(doc(db, 'checklists', user.uid), { items: next, updatedAt: new Date() }, { merge: true });
-      } catch (e) {
+      } catch {
         // Silently fall back
       }
     }

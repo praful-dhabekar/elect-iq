@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Tests for the Timeline component.
  * Covers: rendering, step expansion, ARIA accordion patterns.

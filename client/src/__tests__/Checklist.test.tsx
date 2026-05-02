@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Tests for the Checklist component.
  * Covers: rendering, checkbox toggling, localStorage persistence, progress calculation.
@@ -71,25 +72,25 @@ describe('VoterChecklist Component', () => {
     render(<VoterChecklist />);
     const firstItem = screen.getByText('Am I registered?');
     fireEvent.click(firstItem.closest('button')!);
-    const stored = JSON.parse(localStorage.getItem('electiq-checklist')!);
+    const stored = JSON.parse(localStorage.getItem('electiq_checklist')!);
     expect(stored[0]).toBe(true);
     expect(stored[1]).toBe(false);
   });
 
   it('restores state from localStorage', () => {
-    localStorage.setItem('electiq-checklist', JSON.stringify([true, true, false, false, false, false]));
+    localStorage.setItem('electiq_checklist', JSON.stringify([true, true, false, false, false, false]));
     render(<VoterChecklist />);
     expect(screen.getByText('33%')).toBeInTheDocument(); // 2/6 ≈ 33%
   });
 
   it('handles corrupted localStorage gracefully', () => {
-    localStorage.setItem('electiq-checklist', 'not-json');
+    localStorage.setItem('electiq_checklist', 'not-json');
     expect(() => render(<VoterChecklist />)).not.toThrow();
     expect(screen.getByText('0%')).toBeInTheDocument();
   });
 
   it('shows celebration message at 100%', () => {
-    localStorage.setItem('electiq-checklist', JSON.stringify([true, true, true, true, true, true]));
+    localStorage.setItem('electiq_checklist', JSON.stringify([true, true, true, true, true, true]));
     render(<VoterChecklist />);
     expect(screen.getByText('100%')).toBeInTheDocument();
     expect(screen.getByText(/You're all set! Your civic duty awaits/i)).toBeInTheDocument();

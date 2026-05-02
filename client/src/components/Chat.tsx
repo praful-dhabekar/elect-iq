@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm';
 import { useAnalytics } from '../hooks/useAnalytics';
 import T from './T';
 import { useT } from '../context/TranslationContext';
+import { MAX_MESSAGE_LENGTH } from '../constants';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -41,8 +42,8 @@ const TypingIndicator = () => (
  * Why: Provides the main conversational interface with the Gemini AI. Wrapped in React.memo for efficiency. Uses useCallback to optimize event handlers.
  */
 const Chat: React.FC = React.memo(() => {
-  const [messages, setMessages] = useState<Message[]>([]);
   const welcomeKey = 'Hello! I am your ElectIQ assistant. How can I help you learn about the election process today?';
+  const [messages, setMessages] = useState<Message[]>([{ role: 'assistant', content: welcomeKey }]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -53,11 +54,7 @@ const Chat: React.FC = React.memo(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  // Initialise welcome message after context is available
-  useEffect(() => {
-    setMessages([{ role: 'assistant', content: welcomeKey }]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
 
   useEffect(() => {
     scrollToBottom();
@@ -110,7 +107,7 @@ const Chat: React.FC = React.memo(() => {
           });
         }
       }
-    } catch (error) {
+    } catch {
       setMessages(prev => [...prev, { 
         role: 'assistant', 
         content: 'I apologize, but I am having trouble connecting right now. Please check your connection or try again later.' 
@@ -118,7 +115,7 @@ const Chat: React.FC = React.memo(() => {
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading]);
+  }, [input, isLoading, trackEvent]);
 
   const showTypingIndicator = isLoading && (messages[messages.length - 1]?.role === 'user');
 
@@ -190,6 +187,7 @@ const Chat: React.FC = React.memo(() => {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             placeholder={t('Ask about voter registration, polling, or election rules...')}
+            maxLength={MAX_MESSAGE_LENGTH}
             className="w-full bg-white border border-surface-dim rounded-xl py-3 pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
             disabled={isLoading}
             aria-label="Message ElectIQ assistant"

@@ -7,8 +7,8 @@ const logger = require('./logger');
 const path = require('path');
 require('dotenv').config();
 
-/** @type {string[]} Allowlist of ISO-639-1 language codes for translation. */
-const ALLOWED_TARGET_LANGUAGES = ['en', 'hi', 'bn', 'ta', 'te', 'mr'];
+const { ALLOWED_LANGUAGES, MAX_TRANSLATION_TEXTS, MAX_CHAT_MESSAGE_LENGTH, PORT } = require('./constants');
+const errorHandler = require('./middleware/errorHandler');
 
 /**
  * Validates the request body for the /api/chat endpoint.
@@ -17,7 +17,7 @@ const ALLOWED_TARGET_LANGUAGES = ['en', 'hi', 'bn', 'ta', 'te', 'mr'];
  * @returns {{ valid: boolean, error?: string }}
  */
 function validateChatInput(body) {
-  if (!body || !body.message || typeof body.message !== 'string' || body.message.trim().length === 0) {
+  if (!body || !body.message || typeof body.message !== 'string' || body.message.trim().length === 0 || body.message.length > MAX_CHAT_MESSAGE_LENGTH) {
     return { valid: false, error: 'A non-empty message string is required.' };
   }
   return { valid: true };
@@ -33,9 +33,9 @@ function validateTranslateInput(body) {
   if (!body) return { valid: false, error: 'Invalid request' };
   const { texts, targetLanguage } = body;
   if (
-    !Array.isArray(texts) || texts.length === 0 || texts.length > 50 ||
-    !texts.every(t => typeof t === 'string') ||
-    !ALLOWED_TARGET_LANGUAGES.includes(targetLanguage)
+    !Array.isArray(texts) || texts.length === 0 || texts.length > MAX_TRANSLATION_TEXTS ||
+    !texts.every(t => typeof t === 'string' && t.trim().length > 0) ||
+    !ALLOWED_LANGUAGES.includes(targetLanguage)
   ) {
     return { valid: false, error: 'Invalid request' };
   }
@@ -101,10 +101,11 @@ function createApp(deps = {}) {
    * POST /api/chat
    * Securely proxies chat requests to Gemini AI without exposing the API key.
    * Streams the response back to the client for low-latency UX.
-   * @param {import('express').Request} req
-   * @param {import('express').Response} res
+   * @param {import('express').Request} req - The Express request object
+   * @param {import('express').Response} res - The Express response object
+   * @param {import('express').NextFunction} next - The Express next function
    */
-  app.post('/api/chat', async (req, res) => {
+  app.post('/api/chat', async (req, res, next) => {
     const validation = validateChatInput(req.body);
     if (!validation.valid) {
       logger.warn('Chat API called without a valid message');
@@ -125,7 +126,7 @@ function createApp(deps = {}) {
       res.end();
     } catch (error) {
       logger.error(`Gemini API Error: ${error.message}`, { stack: error.stack });
-      res.status(500).json({ error: 'Failed to communicate with AI service.' });
+      next(error);
     }
   });
 
@@ -133,10 +134,11 @@ function createApp(deps = {}) {
    * POST /api/translate
    * Proxies translation requests to Google Cloud Translation API v2.
    * Input validation is synchronous and unit-testable without hitting the real API.
-   * @param {import('express').Request} req
-   * @param {import('express').Response} res
+   * @param {import('express').Request} req - The Express request object
+   * @param {import('express').Response} res - The Express response object
+   * @param {import('express').NextFunction} next - The Express next function
    */
-  app.post('/api/translate', translateLimiter, async (req, res) => {
+  app.post('/api/translate', translateLimiter, async (req, res, next) => {
     const validation = validateTranslateInput(req.body);
     if (!validation.valid) {
       return res.status(400).json({ error: validation.error });
@@ -157,7 +159,7 @@ function createApp(deps = {}) {
       res.json({ translations });
     } catch (error) {
       logger.error(`Translation API Error: ${error.message}`);
-      res.status(500).json({ error: 'Translation failed' });
+      next(error);
     }
   });
 
@@ -169,15 +171,17 @@ function createApp(deps = {}) {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
   });
 
+  // Register central error handler
+  app.use(errorHandler);
+
   return app;
 }
 
 // --- Export for testing, start server only when run directly ---
-module.exports = { createApp, validateChatInput, validateTranslateInput, ALLOWED_TARGET_LANGUAGES };
+module.exports = { createApp, validateChatInput, validateTranslateInput, ALLOWED_LANGUAGES };
 
 if (require.main === module) {
   const app = createApp();
-  const PORT = process.env.PORT || 3001;
   app.listen(PORT, () => {
     logger.info(`ElectIQ Server running on port ${PORT}`);
   });

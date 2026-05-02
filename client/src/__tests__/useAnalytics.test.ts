@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Tests for the useAnalytics hook.
  * Strategy: Mock window.gtag and verify it is called with correct event data.

@@ -1,5 +1,9 @@
 # ElectIQ - Election Education Assistant
 
+![Cloud Run Deployment](https://img.shields.io/badge/Cloud%20Run-Deployed-success?logo=googlecloud)
+![Node.js Version](https://img.shields.io/badge/node.js-%3E%3D20-blue?logo=nodedotjs)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 ElectIQ is a modern, interactive web application designed to educate citizens about the election process. It provides factual, neutral information through a Gemini-powered chat interface, an interactive timeline, a voter readiness checklist, and a jargon buster.
 
 ## Architecture

@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react';
 import { useTranslation } from '../hooks/useTranslation';
+import PropTypes from 'prop-types';
 
 /**
  * TranslationContext — shares the translation state across the component tree
@@ -17,6 +18,10 @@ export function TranslationProvider({ children }) {
     </TranslationContext.Provider>
   );
 }
+
+TranslationProvider.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
 /** Hook to consume the shared translation context. */
 export function useT() {

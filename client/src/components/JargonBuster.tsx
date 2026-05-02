@@ -50,12 +50,12 @@ const JargonBuster: React.FC = React.memo(() => {
         text += decoder.decode(value);
         setExplanation(text);
       }
-    } catch (error) {
+    } catch {
       setExplanation('Sorry, I couldn\'t retrieve an explanation right now. Please try again later.');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [trackEvent]);
 
   const closeModal = useCallback(() => {
     setSelectedTerm(null);

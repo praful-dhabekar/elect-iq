@@ -1,8 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 
-const ALLOWED_LANGUAGES = ['en', 'hi', 'bn', 'ta', 'te', 'mr'];
-const BATCH_DELAY_MS = 100;
-const STORAGE_KEY = 'electiq_language';
+import { SUPPORTED_LANGUAGES, TRANSLATION_BATCH_DELAY_MS, STORAGE_KEYS } from '../constants';
+
+const ALLOWED_LANGUAGES = SUPPORTED_LANGUAGES.map(lang => lang.code);
 
 /**
  * Returns the cached or queued translation key for a given target language + text pair.
@@ -20,15 +20,11 @@ export function buildCacheKey(targetLang, text) {
  *
  * Why: Batching requests for 100 ms avoids N individual API calls when many
  * <T> components mount simultaneously, keeping costs and latency low.
- *
- * Test strategy:
- *  - buildCacheKey is a pure function and can be unit-tested directly.
- *  - The batching logic lives in flushBatch which can be extracted and tested
- *    by mocking fetch and advancing timers with jest.useFakeTimers().
+ * @returns {{ t: Function, language: string, setLanguage: Function, isTranslating: boolean }}
  */
 export function useTranslation() {
   const [language, setLanguageState] = useState(
-    () => localStorage.getItem(STORAGE_KEY) || 'en'
+    () => localStorage.getItem(STORAGE_KEYS.LANGUAGE) || 'en'
   );
   const [isTranslating, setIsTranslating] = useState(false);
 
@@ -40,15 +36,22 @@ export function useTranslation() {
   // Force re-render subscribers when cache updates
   const [, forceUpdate] = useState(0);
 
+  /**
+   * Sets the language state and saves it to local storage.
+   * @param {string} lang - The selected language code
+   */
   const setLanguage = useCallback((lang) => {
     if (!ALLOWED_LANGUAGES.includes(lang)) return;
-    localStorage.setItem(STORAGE_KEY, lang);
+    localStorage.setItem(STORAGE_KEYS.LANGUAGE, lang);
     setLanguageState(lang);
   }, []);
 
   /**
    * Flushes the pending batch: sends one API call for all queued unique texts.
    * Gracefully falls back to original text on any error.
+   * @param {string} targetLang - The language to translate to.
+   * @param {string[]} texts - Array of strings to translate.
+   * @returns {Promise<void>}
    */
   const flushBatch = useCallback(async (targetLang, texts) => {
     if (texts.length === 0) return;
@@ -94,7 +97,7 @@ export function useTranslation() {
         const batch = [...pendingTexts.current];
         pendingTexts.current.clear();
         flushBatch(language, batch);
-      }, BATCH_DELAY_MS);
+      }, TRANSLATION_BATCH_DELAY_MS);
     }
 
     return text; // Return original while translation is pending

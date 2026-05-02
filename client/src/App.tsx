@@ -13,14 +13,7 @@ import { useAuth } from './context/AuthContext';
 
 type Tab = 'chat' | 'timeline' | 'checklist' | 'jargon';
 
-const LANGUAGES = [
-  { code: 'en', label: 'English' },
-  { code: 'hi', label: 'हिन्दी' },
-  { code: 'bn', label: 'বাংলা' },
-  { code: 'ta', label: 'தமிழ்' },
-  { code: 'te', label: 'తెలుగు' },
-  { code: 'mr', label: 'मराठी' },
-] as const;
+import { SUPPORTED_LANGUAGES } from './constants';
 
 /**
  * LanguageSelector Component
@@ -38,7 +31,7 @@ const LanguageSelector: React.FC = () => {
     setOpen(false);
   }, [setLanguage, trackEvent]);
 
-  const currentLabel = LANGUAGES.find(l => l.code === language)?.label ?? 'English';
+  const currentLabel = SUPPORTED_LANGUAGES.find(l => l.code === language)?.label ?? 'English';
 
   return (
     <div className="relative">
@@ -76,7 +69,7 @@ const LanguageSelector: React.FC = () => {
               transition={{ duration: 0.15 }}
               className="absolute right-0 z-50 mt-1 w-40 bg-white border border-surface-dim rounded-xl shadow-lg overflow-hidden"
             >
-              {LANGUAGES.map(({ code, label }) => (
+              {SUPPORTED_LANGUAGES.map(({ code, label }) => (
                 <li
                   key={code}
                   role="option"
