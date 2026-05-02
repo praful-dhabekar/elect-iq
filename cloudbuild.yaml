@@ -1,0 +1,16 @@
+steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '--build-arg', 'VITE_GA_MEASUREMENT_ID=${_VITE_GA_MEASUREMENT_ID}',
+      '-t', 'us-central1-docker.pkg.dev/${PROJECT_ID}/elect-iq-repo/elect-iq:latest',
+      '.'
+    ]
+
+# Push the container image to Artifact Registry
+images:
+  - 'us-central1-docker.pkg.dev/${PROJECT_ID}/elect-iq-repo/elect-iq:latest'
+
+substitutions:
+  _VITE_GA_MEASUREMENT_ID: 'G-HQPNX5T5WR'
