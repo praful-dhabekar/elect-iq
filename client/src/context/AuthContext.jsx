@@ -32,12 +32,12 @@ export function AuthProvider({ children }) {
   /** Signs in with Google using a popup. */
   const signInWithGoogle = useCallback(async () => {
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      console.log('Sign-in success:', result.user.uid);
+      await signInWithPopup(auth, googleProvider);
     } catch (error) {
-      console.error('Sign-in error code:', error.code);
-      console.error('Sign-in error message:', error.message);
-      console.error('Sign-in credential:', error.customData);
+      if (error.code !== 'auth/popup-closed-by-user') {
+        // Fallback error logging for actual failures
+        console.error('Sign-in error:', error.message);
+      }
     }
   }, []);
 

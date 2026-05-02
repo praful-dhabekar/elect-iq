@@ -55,20 +55,23 @@ function createApp(deps = {}) {
 
   // --- Security Middlewares ---
   app.use(helmet({
-    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
+    crossOriginOpenerPolicy: false,
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'", "https://apis.google.com", "https://www.gstatic.com"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https://apis.google.com", "https://www.gstatic.com", "https://www.googletagmanager.com"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
-        imgSrc: ["'self'", "data:", "https://*.googleusercontent.com", "https://www.gstatic.com"],
+        imgSrc: ["'self'", "data:", "https://*.googleusercontent.com", "https://www.gstatic.com", "https://*.google-analytics.com", "https://*.googletagmanager.com"],
         connectSrc: [
           "'self'", 
           "https://identitytoolkit.googleapis.com", 
           "https://securetoken.googleapis.com", 
           "https://firestore.googleapis.com",
-          "https://translation.googleapis.com"
+          "https://translation.googleapis.com",
+          "https://*.google-analytics.com",
+          "https://*.analytics.google.com",
+          "https://*.googletagmanager.com"
         ],
         frameSrc: ["'self'", "https://*.firebaseapp.com"],
       },
