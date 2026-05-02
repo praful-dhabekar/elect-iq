@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Environment variables — never commit secrets
+.env
+*.env
+.env.local
+.env.*.local
+
+# API documentation (sensitive / not for public repo)
+gemini-2.5-flash-api-doc.md
+
+# Logs
+*.log
+combined.log
+error.log
+
+# Build outputs
+dist/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories
+.vscode/
+.idea/

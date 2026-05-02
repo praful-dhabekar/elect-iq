@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #003f87;
+  --color-primary-container: #0056b3;
+  --color-primary-fixed: #d7e2ff;
+
+  --color-surface: #f9f9ff;
+  --color-surface-dim: #d9d9e2;
+  --color-surface-bright: #f9f9ff;
+  --color-surface-container: #ededf6;
+
+  --color-secondary: #5b5f62;
+  --color-secondary-container: #dde0e3;
+
+  --color-outline: #727784;
+
+  --font-inter: "Inter", sans-serif;
+
+  --radius-bubble: 0.75rem;
+}
+
+@layer base {
+  body {
+    @apply bg-surface text-gray-900 font-inter antialiased transition-colors duration-300;
+  }
+
+  button, 
+  [role="button"],
+  a {
+    @apply cursor-pointer;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply bg-white/70 backdrop-blur-md border border-white/20 shadow-xl;
+  }
+  
+  .glass-dark {
+    @apply bg-primary-container/10 backdrop-blur-lg border border-primary-container/20;
+  }
+
+  .interactive-card {
+    @apply transition-all duration-300 hover:scale-[1.02] hover:border-primary-container/50 active:scale-[0.98];
+  }
+
+  .btn-primary {
+    @apply bg-primary-container text-white px-6 py-2 rounded-lg font-semibold transition-all hover:bg-primary hover:shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .chat-bubble-assistant {
+    @apply bg-surface-container border border-surface-dim rounded-bubble rounded-tl-none p-4 max-w-[85%];
+  }
+
+  .chat-bubble-user {
+    @apply bg-primary-container text-white rounded-bubble rounded-tr-none p-4 max-w-[85%] self-end;
+  }
+
+  .markdown-content {
+    @apply space-y-2;
+  }
+  .markdown-content p {
+    @apply mb-2 last:mb-0;
+  }
+  .markdown-content ul, .markdown-content ol {
+    @apply ml-4 space-y-1 my-2;
+  }
+  .markdown-content ul {
+    @apply list-disc;
+  }
+  .markdown-content ol {
+    @apply list-decimal;
+  }
+  .markdown-content strong {
+    @apply font-bold text-primary;
+  }
+  .markdown-content a {
+    @apply text-primary underline hover:text-primary-container;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-primary/20 rounded-full hover:bg-primary/40 transition-colors;
+}
